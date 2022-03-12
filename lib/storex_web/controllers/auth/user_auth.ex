@@ -12,6 +12,8 @@ defmodule StorexWeb.Auth.UserAuth do
   @remember_me_cookie "_storex_web_user_remember_me"
   @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
 
+  @csrf_token_cookie "XSRF-TOKEN"
+
   @doc """
   Logs the user in.
 
@@ -31,6 +33,7 @@ defmodule StorexWeb.Auth.UserAuth do
     conn
     |> renew_session()
     |> put_session(:user_token, token)
+    |> write_csrf_cookie()
     # |> put_session(:live_socket_id, "users_sessions:#{Base.url_encode64(token)}")
     |> maybe_write_remember_me_cookie(token, params)
 
@@ -43,6 +46,12 @@ defmodule StorexWeb.Auth.UserAuth do
 
   defp maybe_write_remember_me_cookie(conn, _token, _params) do
     conn
+  end
+
+  defp write_csrf_cookie(conn) do
+    token = get_csrf_token()
+    IO.puts(inspect(%{token: token}))
+    put_resp_cookie(conn, @csrf_token_cookie, token, @remember_me_options)
   end
 
   # This function renews the session ID and erases the whole
