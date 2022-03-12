@@ -1,12 +1,21 @@
 defmodule StorexWeb.Router do
   use StorexWeb, :router
 
+  import StorexWeb.Auth.UserAuth
+
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
+    plug :put_secure_browser_headers
+    plug :fetch_current_user
   end
 
   scope "/api", StorexWeb do
     pipe_through :api
+
+    scope "/auth", Auth, as: :auth do
+      post "/signup", AuthController, :signup
+    end
   end
 
   # Enables the Swoosh mailbox preview in development.

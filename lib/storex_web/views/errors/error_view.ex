@@ -27,6 +27,10 @@ defmodule StorexWeb.ErrorView do
     %{status: 500, message: "Internal Server Error"}
   end
 
+  def render("503.json", _assigns) do
+    %{status: 503, message: "Service Unavailable"}
+  end
+
   def template_not_found(template, _assigns) do
     %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}
   end
