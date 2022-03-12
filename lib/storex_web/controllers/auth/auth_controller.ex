@@ -13,4 +13,14 @@ defmodule StorexWeb.Auth.AuthController do
       |> render("signup.json", user: user)
     end
   end
+
+  def login(conn, %{"user" => user_params}) do
+    %{"email" => email, "password" => password} = user_params
+
+    with {:ok, user} <- Accounts.get_user_by_email_and_password(email, password) do
+      conn
+      |> UserAuth.log_in_user(user, user_params)
+      |> render("login.json", user: user)
+    end
+  end
 end

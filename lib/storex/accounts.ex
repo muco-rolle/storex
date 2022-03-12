@@ -41,7 +41,11 @@ defmodule Storex.Accounts do
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
     user = Repo.get_by(User, email: email)
-    if User.valid_password?(user, password), do: user
+
+    case User.valid_password?(user, password) do
+      true -> {:ok, user}
+      false -> {:error, :bad_request, "Invalid email or password"}
+    end
   end
 
   @doc """

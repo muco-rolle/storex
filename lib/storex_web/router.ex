@@ -13,8 +13,9 @@ defmodule StorexWeb.Router do
   scope "/api", StorexWeb do
     pipe_through :api
 
-    scope "/auth", Auth, as: :auth do
+    scope "/auth", Auth do
       post "/signup", AuthController, :signup
+      post "/login", AuthController, :login
     end
   end
 
