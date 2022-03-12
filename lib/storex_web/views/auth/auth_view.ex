@@ -12,4 +12,8 @@ defmodule StorexWeb.Auth.AuthView do
   def render("login.json", %{user: _user}) do
     %{status: 200, message: "User logged in successfully."}
   end
+
+  def render("logout.json", %{user: _user}) do
+    %{status: 200, message: "User logged out successfully."}
+  end
 end

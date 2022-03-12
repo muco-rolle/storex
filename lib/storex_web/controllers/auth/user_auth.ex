@@ -12,7 +12,7 @@ defmodule StorexWeb.Auth.UserAuth do
   @remember_me_cookie "_storex_web_user_remember_me"
   @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
 
-  @csrf_token_cookie "XSRF-TOKEN"
+  # @csrf_token_cookie "XSRF-TOKEN"
 
   @doc """
   Logs the user in.
@@ -33,7 +33,7 @@ defmodule StorexWeb.Auth.UserAuth do
     conn
     |> renew_session()
     |> put_session(:user_token, token)
-    |> write_csrf_cookie()
+    # |> write_csrf_cookie() Experimentation with protect against CSRF
     # |> put_session(:live_socket_id, "users_sessions:#{Base.url_encode64(token)}")
     |> maybe_write_remember_me_cookie(token, params)
 
@@ -48,11 +48,11 @@ defmodule StorexWeb.Auth.UserAuth do
     conn
   end
 
-  defp write_csrf_cookie(conn) do
-    token = get_csrf_token()
-    IO.puts(inspect(%{token: token}))
-    put_resp_cookie(conn, @csrf_token_cookie, token, @remember_me_options)
-  end
+  # defp write_csrf_cookie(conn) do
+  #   token = get_csrf_token()
+  #   IO.puts(inspect(%{token: token}))
+  #   put_resp_cookie(conn, @csrf_token_cookie, token, @remember_me_options)
+  # end
 
   # This function renews the session ID and erases the whole
   # session to avoid fixation attacks. If there is any data
@@ -82,16 +82,19 @@ defmodule StorexWeb.Auth.UserAuth do
   """
   def log_out_user(conn) do
     user_token = get_session(conn, :user_token)
-    user_token && Accounts.delete_session_token(user_token)
 
-    if live_socket_id = get_session(conn, :live_socket_id) do
-      StorexWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})
-    end
+    IO.puts(inspect(user_token))
+    # user_token && Accounts.delete_session_token(user_token)
+
+    # if live_socket_id = get_session(conn, :live_socket_id) do
+    #   StorexWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})
+    # end
 
     conn
     |> renew_session()
     |> delete_resp_cookie(@remember_me_cookie)
-    |> redirect(to: "/")
+
+    # |> redirect(to: "/")
   end
 
   @doc """
@@ -142,18 +145,12 @@ defmodule StorexWeb.Auth.UserAuth do
       conn
     else
       conn
-      |> put_flash(:error, "You must log in to access this page.")
-      |> maybe_store_return_to()
-      # |> redirect(to: Routes.auth_user_session_path(conn, :new))
+      |> put_status(401)
+      |> Phoenix.Controller.put_view(StorexWeb.ErrorView)
+      |> Phoenix.Controller.render("401.json")
       |> halt()
     end
   end
-
-  defp maybe_store_return_to(%{method: "GET"} = conn) do
-    put_session(conn, :user_return_to, current_path(conn))
-  end
-
-  defp maybe_store_return_to(conn), do: conn
 
   defp signed_in_path(_conn), do: "/"
 end

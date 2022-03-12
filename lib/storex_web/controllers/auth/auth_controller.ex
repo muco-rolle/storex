@@ -30,4 +30,10 @@ defmodule StorexWeb.Auth.AuthController do
       |> render("login.json", user: user)
     end
   end
+
+  def logout(conn, _params) do
+    conn
+    |> log_out_user()
+    |> render("logout.json", %{user: ""})
+  end
 end

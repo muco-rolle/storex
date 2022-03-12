@@ -18,6 +18,7 @@ defmodule StorexWeb.Router do
       get "/me", AuthController, :me
       post "/signup", AuthController, :signup
       post "/login", AuthController, :login
+      post "/logout", AuthController, :logout
     end
   end
 
